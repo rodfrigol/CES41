@@ -130,7 +130,7 @@ static void printSpaces(void)
 
 /* procedure printTree prints a syntax tree to the 
  * listing file using indentation to indicate subtrees
- */
+{OpK,NumK,IdK}*/
 void printTree( TreeNode * tree )
 { int i;
   INDENT;
@@ -141,20 +141,20 @@ void printTree( TreeNode * tree )
         case IfK:
           fprintf(listing,"If\n");
           break;
-        case RepeatK:
-          fprintf(listing,"Repeat\n");
+        case IntK:
+          fprintf(listing,"Int\n");
           break;
-        case AssignK:
-          fprintf(listing,"Assign to: %s\n",tree->attr.name);
+        case ReturnK:
+          fprintf(listing,"Return\n");
           break;
-        case ReadK:
-          fprintf(listing,"Read: %s\n",tree->attr.name);
+        case VoidK:
+          fprintf(listing,"Void\n");
           break;
-        case WriteK:
-          fprintf(listing,"Write\n");
+        case WhileK:
+          fprintf(listing,"While\n");
           break;
         default:
-          fprintf(listing,"Unknown ExpNode kind\n");
+          fprintf(listing,"Unknown StmtNode kind\n");
           break;
       }
     }
@@ -164,8 +164,8 @@ void printTree( TreeNode * tree )
           fprintf(listing,"Op: ");
           printToken(tree->attr.op,"\0");
           break;
-        case ConstK:
-          fprintf(listing,"Const: %d\n",tree->attr.val);
+        case NumK:
+          fprintf(listing,"Num: %d\n",tree->attr.val);
           break;
         case IdK:
           fprintf(listing,"Id: %s\n",tree->attr.name);

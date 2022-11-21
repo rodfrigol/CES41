@@ -1,6 +1,6 @@
 /****************************************************/
-/* File: tiny.y                                     */
-/* The TINY Yacc/Bison specification file           */
+/* File: cm.y                                       */
+/* The C- Yacc/Bison specification file             */
 /* Compiler Construction: Principles and Practice   */
 /* Kenneth C. Louden                                */
 /****************************************************/
@@ -14,6 +14,7 @@
 
 #define YYSTYPE TreeNode *
 static char * savedName; /* for use in assignments */
+static int savedNum; /* for use in assignments */
 static int savedLineNo;  /* ditto */
 static TreeNode * savedTree; /* stores syntax tree for later return */
 static int yylex(void);
@@ -26,7 +27,7 @@ int yyerror(char *s);
 %token PLUS MINUS MULT DIV LT LTE GT GTE EQ DIF ASSIGN SEMI COMMA OP CP OB CB OBRACES CBRACES
 %token ERROR 
 
-%% /* Grammar for TINY */
+%% /* Grammar for C- */
 
 program     : decl_list
                  { savedTree = $1;} 
@@ -49,42 +50,58 @@ decl        : var_decl { $$ = $1; }
             | fun_decl { $$ = $1; }
             | error  { $$ = NULL; }
             ;
-var_decl    : tipo_esp ID { savedName = copyString(tokenString);
-                            savedLineNo = lineno; }
+var_decl    : INT id SEMI
               {
-                $$ = $1;
+                $$ = newStmtNode(IntK);
                 $$->child[0] = newExpNode(IdK);
-                $$->child[0]->attr.name = savedName;
+                $$->child[0]->attr.name = $2->attr.name;
               }
-              SEMI
-            | tipo_esp ID { savedName = copyString(tokenString);
-                            savedLineNo = lineno; }
-              OB NUM { savedNum = atoi(tokenString); } CB
+            | VOID id SEMI
               {
-                $$ = $1;
+                $$ = newStmtNode(VoidK);
                 $$->child[0] = newExpNode(IdK);
-                $$->child[0]->attr.name = savedName;
+                $$->child[0]->attr.name = $2->attr.name;
+              }
+            | INT id OB NUM {savedNum = atoi(tokenString);} CB SEMI
+              {
+                $$ = newStmtNode(IntK);
+                $$->child[0] = newExpNode(IdK);
+                $$->child[0]->attr.name = $2->attr.name;
+
                 $$->child[0]->child[0] = newExpNode(NumK);
                 $$->child[0]->child[0]->attr.val = savedNum;
               }
-              SEMI
-            ;
-tipo_esp    : INT { $$ = newStmtNode(IntK); }
-            | VOID { $$ = newStmtNode(VoidK); }
-            ;
-fun_decl    : tipo_esp ID { savedName = copyString(tokenString);
-                            savedLineNo = lineno; }
-              OP params CP comp_decl
+            | VOID id OB NUM {savedNum = atoi(tokenString);} CB SEMI
               {
-                $$ = $1;
+                $$ = newStmtNode(VoidK);
                 $$->child[0] = newExpNode(IdK);
-                $$->child[0]->attr.name = savedName;
-                $$->child[0]->child[0] = $5;
-                $$->child[0]->child[1] = $7;
+                $$->child[0]->attr.name = $2->attr.name;
+
+                $$->child[0]->child[0] = newExpNode(NumK);
+                $$->child[0]->child[0]->attr.val = savedNum;
+              }
+            ;
+fun_decl    : INT id OP params CP comp_decl
+              {
+                $$ = newStmtNode(IntK);
+                $$->child[0] = newExpNode(IdK);
+                $$->child[0]->attr.name = $2->attr.name;
+                
+                $$->child[0]->child[0] = $4;
+                $$->child[0]->child[1] = $6;
+              }
+            | VOID id OP params CP comp_decl
+              {
+                $$ = newStmtNode(VoidK);
+                $$->child[0] = newExpNode(IdK);
+                $$->child[0]->attr.name = $2->attr.name;
+                
+                $$->child[0]->child[0] = $4;
+                $$->child[0]->child[1] = $6;
               }
             ;
 params      : param_lista { $$ = $1; }
-            | VOID { $$ = $NULL; }
+            | VOID { $$ = NULL; }
             ;
 param_lista : param_lista COMMA param
                  { 
@@ -100,19 +117,33 @@ param_lista : param_lista COMMA param
                  }
             | param { $$ = $1; }
             ;
-param       : tipo_esp ID
+param       : INT id
               {
-                $$ = $1
+                $$ = newStmtNode(IntK);
                 $$->child[0] = newExpNode(IdK);
-                $$->child[0]->attr.name = copyString(tokenString);
+                $$->child[0]->attr.name = $2->attr.name;
               }
-            | tipo_esp ID { savedName = copyString(tokenString);
-                            savedLineNo = lineno; }
-              OB CB
+            | VOID id
               {
-                $$ = $1
+                $$ = newStmtNode(VoidK);
+                $$->child[0] = newExpNode(VoidK);
+                $$->child[0]->attr.name = $2->attr.name;
+              }
+            | INT id OB CB
+              {
+                $$ = newStmtNode(IntK);
                 $$->child[0] = newExpNode(IdK);
-                $$->child[0]->attr.name = copyString(tokenString);
+                $$->child[0]->attr.name = $2->attr.name;
+
+                $$->child[0]->child[0] = newExpNode(NumK);
+              }
+            | VOID id OB CB
+              {
+                $$ = newStmtNode(VoidK);
+                $$->child[0] = newExpNode(VoidK);
+                $$->child[0]->attr.name = $2->attr.name;
+
+                $$->child[0]->child[0] = newExpNode(NumK);
               }
             ;
 comp_decl   : OBRACES loc_decl stmt_list CBRACES
@@ -205,18 +236,12 @@ exp         : var ASSIGN exp
               }
             | simp_exp { $$ = $1; }
             ;
-var         : ID
+var         : id { $$ = $1; }
+            | id OB exp CB
               {
                 $$ = newExpNode(IdK);
-                $$->attr.name = copyString(tokenString);
-              }
-            | ID { savedName = copyString(tokenString);
-                            savedLineNo = lineno; }
-              OB exp CB
-              {
-                $$ = newExpNode(IdK);
-                $$->attr.name = savedName;
-                $$->child[0] = $4;
+                $$->attr.name = $1->attr.name;
+                $$->child[0] = $3;
               }
             ;
 simp_exp    : soma_exp LTE soma_exp
@@ -301,13 +326,11 @@ fator       : OP exp CP { $$ = $2; }
             | NUM { $$ = newExpNode(NumK);
                     $$->attr.val = atoi(tokenString); }
             ;
-ativ        : ID { savedName = copyString(tokenString);
-                            savedLineNo = lineno; }
-              OP args CP
+ativ        : id OP args CP
               {
                 $$ = newExpNode(IdK);
-                $$->attr.name = savedName;
-                $$->child[0] = $4
+                $$->attr.name = $1->attr.name;
+                $$->child[0] = $3;
               }
             ;
 args        : arg_lista { $$ = $1;}
@@ -326,6 +349,11 @@ arg_lista   : arg_lista COMMA exp
                 else $$ = $3;
               }
             | exp { $$ = $1;}
+            ;
+
+id          : ID {$$ = newExpNode(IdK);
+                  $$->attr.name = copyString(tokenString);
+                  $$->lineno = lineno;}
             ;
 
 %%
