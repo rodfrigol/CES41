@@ -126,7 +126,7 @@ param       : INT id
             | VOID id
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(VoidK);
+                $$->child[0] = newExpNode(IdK);
                 $$->child[0]->attr.name = $2->attr.name;
               }
             | INT id OB CB
@@ -140,7 +140,7 @@ param       : INT id
             | VOID id OB CB
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(VoidK);
+                $$->child[0] = newExpNode(IdK);
                 $$->child[0]->attr.name = $2->attr.name;
 
                 $$->child[0]->child[0] = newExpNode(NumK);
