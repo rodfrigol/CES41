@@ -81,7 +81,7 @@ TreeNode * newStmtNode(StmtKind kind)
 /* Function newExpNode creates a new expression 
  * node for syntax tree construction
  */
-TreeNode * newExpNode(ExpKind kind)
+TreeNode * newExpNode(ExpKind kind, IdType idtype)
 { TreeNode * t = (TreeNode *) malloc(sizeof(TreeNode));
   int i;
   if (t==NULL)
@@ -93,6 +93,7 @@ TreeNode * newExpNode(ExpKind kind)
     t->kind.exp = kind;
     t->lineno = lineno;
     t->type = Void;
+    t->idtype = idtype;
   }
   return t;
 }

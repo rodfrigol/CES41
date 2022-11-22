@@ -53,38 +53,38 @@ decl        : var_decl { $$ = $1; }
 var_decl    : INT id SEMI
               {
                 $$ = newStmtNode(IntK);
-                $$->child[0] = newExpNode(IdK);
+                $$->child[0] = newExpNode(IdK, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
               }
             | VOID id SEMI
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(IdK);
+                $$->child[0] = newExpNode(IdK, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
               }
             | INT id OB NUM {savedNum = atoi(tokenString);} CB SEMI
               {
                 $$ = newStmtNode(IntK);
-                $$->child[0] = newExpNode(IdK);
+                $$->child[0] = newExpNode(IdK, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
 
-                $$->child[0]->child[0] = newExpNode(NumK);
+                $$->child[0]->child[0] = newExpNode(NumK, -1);
                 $$->child[0]->child[0]->attr.val = savedNum;
               }
             | VOID id OB NUM {savedNum = atoi(tokenString);} CB SEMI
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(IdK);
+                $$->child[0] = newExpNode(IdK, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
 
-                $$->child[0]->child[0] = newExpNode(NumK);
+                $$->child[0]->child[0] = newExpNode(NumK, -1);
                 $$->child[0]->child[0]->attr.val = savedNum;
               }
             ;
 fun_decl    : INT id OP params CP comp_decl
               {
                 $$ = newStmtNode(IntK);
-                $$->child[0] = newExpNode(IdK);
+                $$->child[0] = newExpNode(IdK, Function);
                 $$->child[0]->attr.name = $2->attr.name;
                 
                 $$->child[0]->child[0] = $4;
@@ -93,7 +93,7 @@ fun_decl    : INT id OP params CP comp_decl
             | VOID id OP params CP comp_decl
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(IdK);
+                $$->child[0] = newExpNode(IdK, Function);
                 $$->child[0]->attr.name = $2->attr.name;
                 
                 $$->child[0]->child[0] = $4;
@@ -120,30 +120,30 @@ param_lista : param_lista COMMA param
 param       : INT id
               {
                 $$ = newStmtNode(IntK);
-                $$->child[0] = newExpNode(IdK);
+                $$->child[0] = newExpNode(IdK, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
               }
             | VOID id
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(IdK);
+                $$->child[0] = newExpNode(IdK, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
               }
             | INT id OB CB
               {
                 $$ = newStmtNode(IntK);
-                $$->child[0] = newExpNode(IdK);
+                $$->child[0] = newExpNode(IdK, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
 
-                $$->child[0]->child[0] = newExpNode(NumK);
+                $$->child[0]->child[0] = newExpNode(NumK, -1);
               }
             | VOID id OB CB
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(IdK);
+                $$->child[0] = newExpNode(IdK, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
 
-                $$->child[0]->child[0] = newExpNode(NumK);
+                $$->child[0]->child[0] = newExpNode(NumK, -1);
               }
             ;
 comp_decl   : OBRACES loc_decl stmt_list CBRACES
@@ -229,7 +229,7 @@ ret_decl    : RETURN SEMI
             ;
 exp         : var ASSIGN exp
               {
-                $$ = newExpNode(OpK);
+                $$ = newExpNode(OpK, -1);
                 $$->attr.op = ASSIGN;
                 $$->child[0] = $1;
                 $$->child[1] = $3;
@@ -239,49 +239,49 @@ exp         : var ASSIGN exp
 var         : id { $$ = $1; }
             | id OB exp CB
               {
-                $$ = newExpNode(IdK);
+                $$ = newExpNode(IdK, Variable);
                 $$->attr.name = $1->attr.name;
                 $$->child[0] = $3;
               }
             ;
 simp_exp    : soma_exp LTE soma_exp
               {
-                  $$ = newExpNode(OpK);
+                  $$ = newExpNode(OpK, -1);
                   $$->attr.op = LTE;
                   $$->child[0] = $1;
                   $$->child[1] = $3;
               }
             | soma_exp LT soma_exp
               {
-                  $$ = newExpNode(OpK);
+                  $$ = newExpNode(OpK, -1);
                   $$->attr.op = LT;
                   $$->child[0] = $1;
                   $$->child[1] = $3;
               }
             | soma_exp GT soma_exp
               {
-                  $$ = newExpNode(OpK);
+                  $$ = newExpNode(OpK, -1);
                   $$->attr.op = GT;
                   $$->child[0] = $1;
                   $$->child[1] = $3;
               }
             | soma_exp GTE soma_exp
               {
-                  $$ = newExpNode(OpK);
+                  $$ = newExpNode(OpK, -1);
                   $$->attr.op = GTE;
                   $$->child[0] = $1;
                   $$->child[1] = $3;
               }
             | soma_exp EQ soma_exp
               {
-                  $$ = newExpNode(OpK);
+                  $$ = newExpNode(OpK, -1);
                   $$->attr.op = EQ;
                   $$->child[0] = $1;
                   $$->child[1] = $3;
               }
             | soma_exp DIF soma_exp
               {
-                  $$ = newExpNode(OpK);
+                  $$ = newExpNode(OpK, -1);
                   $$->attr.op = DIF;
                   $$->child[0] = $1;
                   $$->child[1] = $3;
@@ -290,14 +290,14 @@ simp_exp    : soma_exp LTE soma_exp
             ;
 soma_exp    : soma_exp PLUS termo
               {
-                  $$ = newExpNode(OpK);
+                  $$ = newExpNode(OpK, -1);
                   $$->attr.op = PLUS;
                   $$->child[0] = $1;
                   $$->child[1] = $3;
               }
             | soma_exp MINUS termo
               {
-                  $$ = newExpNode(OpK);
+                  $$ = newExpNode(OpK, -1);
                   $$->attr.op = MINUS;
                   $$->child[0] = $1;
                   $$->child[1] = $3;
@@ -306,14 +306,14 @@ soma_exp    : soma_exp PLUS termo
             ;
 termo       : termo MULT fator
               {
-                  $$ = newExpNode(OpK);
+                  $$ = newExpNode(OpK, -1);
                   $$->attr.op = MULT;
                   $$->child[0] = $1;
                   $$->child[1] = $3;
               }
             | soma_exp DIV fator
               {
-                  $$ = newExpNode(OpK);
+                  $$ = newExpNode(OpK, -1);
                   $$->attr.op = DIV;
                   $$->child[0] = $1;
                   $$->child[1] = $3;
@@ -323,12 +323,12 @@ termo       : termo MULT fator
 fator       : OP exp CP { $$ = $2; }
             | var { $$ = $1; }
             | ativ { $$ = $1; }
-            | NUM { $$ = newExpNode(NumK);
+            | NUM { $$ = newExpNode(NumK, -1);
                     $$->attr.val = atoi(tokenString); }
             ;
 ativ        : id OP args CP
               {
-                $$ = newExpNode(IdK);
+                $$ = newExpNode(IdK, Function);
                 $$->attr.name = $1->attr.name;
                 $$->child[0] = $3;
               }
@@ -351,7 +351,7 @@ arg_lista   : arg_lista COMMA exp
             | exp { $$ = $1;}
             ;
 
-id          : ID {$$ = newExpNode(IdK);
+id          : ID {$$ = newExpNode(IdK, Variable);
                   $$->attr.name = copyString(tokenString);
                   $$->lineno = lineno;}
             ;
