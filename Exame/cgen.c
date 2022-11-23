@@ -29,6 +29,7 @@ static void genStmt( TreeNode * tree) {
       aux = buildOpCode(tree->child[0], FALSE);
       printTabs();
       fprintf(code, "return %s\n", aux);
+      free(aux);
       break;
     case IfK:
       initialGoto = gotoNo;
@@ -44,6 +45,7 @@ static void genStmt( TreeNode * tree) {
       cGen(tree->child[1]);
       fprintf(code, "\tL%d:\t", initialGoto + 1);
       countTab = 2;
+      free(aux);
       break;
     case WhileK:
       initialGoto = gotoNo;
@@ -62,6 +64,7 @@ static void genStmt( TreeNode * tree) {
       fprintf(code, "goto L%d\n", initialGoto);
       fprintf(code, "\tL%d:\t", initialGoto + 2);
       countTab = 2;
+      free(aux);
       break;
     default:
       break;
