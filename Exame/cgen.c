@@ -35,9 +35,7 @@ static void genStmt( TreeNode * tree) {
       gotoNo += 2;
       aux = buildOpCode(tree->child[0], FALSE);
       printTabs();
-      fprintf(code, "r%d = %s\n", registerNo, aux);
-      printTabs();
-      fprintf(code, "if_true r%d goto L%d\n", registerNo++, initialGoto);
+      fprintf(code, "if_true %s goto L%d\n", aux, initialGoto);
       cGen(tree->child[2]);
       printTabs();
       fprintf(code, "goto L%d\n", initialGoto + 1);
@@ -54,9 +52,7 @@ static void genStmt( TreeNode * tree) {
       countTab = 2;
       aux = buildOpCode(tree->child[0], FALSE);
       printTabs();
-      fprintf(code, "r%d = %s\n", registerNo, aux);
-      printTabs();
-      fprintf(code, "if_true r%d goto L%d\n", registerNo++, initialGoto + 1);
+      fprintf(code, "if_true %s goto L%d\n", aux, initialGoto + 1);
       printTabs();
       fprintf(code, "goto L%d\n", initialGoto + 2);
       fprintf(code, "\tL%d:\t", initialGoto + 1);
@@ -77,8 +73,8 @@ static void genExp( TreeNode * tree ) {
   switch (tree->kind.exp) {
       case IdK:
         if (tree->idtype == Function) {
-          fprintf(code, "\n%s:\t", tree->attr.name);
-          countTab = 1;
+          fprintf(code, "\n%s:", tree->attr.name);
+          countTab = 0;
           cGen(tree->child[1]);
         } else {
           buildOpCode(tree, FALSE);
