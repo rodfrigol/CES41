@@ -1,0 +1,16 @@
+void func(int a, int b) {
+    output(a + b);
+}
+
+int main(void) {
+    int arrA[10]; int arrB[1]; int x;
+    x = 9;
+    arrB[0] = 3;
+    if (x <= 9) {
+        while (x > 0) {
+            output(arrA[x] = input(), arrB[0]);
+            x = x - 1;
+        }
+    }
+    return x;
+}
