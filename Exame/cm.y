@@ -328,7 +328,7 @@ fator       : OP exp CP { $$ = $2; }
             ;
 ativ        : id OP args CP
               {
-                $$ = newExpNode(IdK, Function);
+                $$ = newExpNode(IdK, Ativation);
                 $$->attr.name = $1->attr.name;
                 $$->child[0] = $3;
               }
