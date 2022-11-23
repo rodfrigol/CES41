@@ -311,7 +311,7 @@ termo       : termo MULT fator
                   $$->child[0] = $1;
                   $$->child[1] = $3;
               }
-            | soma_exp DIV fator
+            | termo DIV fator
               {
                   $$ = newExpNode(OpK, -1);
                   $$->attr.op = DIV;
