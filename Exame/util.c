@@ -93,6 +93,28 @@ TreeNode * newExpNode(ExpKind kind, IdType idtype)
     t->kind.exp = kind;
     t->lineno = lineno;
     t->type = Void;
+    t->decltype = -1;
+    t->idtype = idtype;
+  }
+  return t;
+}
+
+/* Function newDeclExpNode creates a new decl expression 
+ * node for syntax tree construction
+ */
+TreeNode * newDeclExpNode(ExpKind kind, DeclType decltype, IdType idtype)
+{ TreeNode * t = (TreeNode *) malloc(sizeof(TreeNode));
+  int i;
+  if (t==NULL)
+    fprintf(listing,"Out of memory error at line %d\n",lineno);
+  else {
+    for (i=0;i<MAXCHILDREN;i++) t->child[i] = NULL;
+    t->sibling = NULL;
+    t->nodekind = ExpK;
+    t->kind.exp = kind;
+    t->lineno = lineno;
+    t->type = Void;
+    t->decltype = decltype;
     t->idtype = idtype;
   }
   return t;
@@ -118,6 +140,12 @@ char * copyString(char * s)
  */
 static int indentno = 0;
 
+/*  */
+static int inFunction = 0;
+
+/* escopo atual */
+char * currentScope;
+
 /* macros to increase/decrease indentation */
 #define INDENT indentno+=2
 #define UNINDENT indentno-=2
@@ -134,6 +162,9 @@ static void printSpaces(void)
 {OpK,NumK,IdK}*/
 void printTree( TreeNode * tree )
 { int i;
+  if (indentno == 0 ) {
+    currentScope = copyString("global");
+  }
   INDENT;
   while (tree != NULL) {
     printSpaces();
@@ -169,7 +200,19 @@ void printTree( TreeNode * tree )
           fprintf(listing,"Num: %d\n",tree->attr.val);
           break;
         case IdK:
-          fprintf(listing,"Id: %s\n",tree->attr.name);
+          switch (tree->idtype) {
+            case Variable:
+              tree->scope = currentScope;
+              break;
+            case Function:
+              tree->scope = currentScope;
+              currentScope = copyString(tree->attr.name);
+              break;
+            case Ativation:
+              tree->scope = currentScope;
+              break;
+          }
+          fprintf(listing,"Id: %s %d\n",tree->attr.name);
           break;
         default:
           fprintf(listing,"Unknown ExpNode kind\n");

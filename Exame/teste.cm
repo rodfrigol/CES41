@@ -1,0 +1,21 @@
+"Variable Name  Scope Level   Scope Name   Type   Kind   Line Numbers\n"
+"-------------  -----------   ----------   ----   ----   ------------\n"
+
+
+        fprintf(listing,"%-15s",l->name);
+        fprintf(listing,"%-14d",l->scope_level);
+        fprintf(listing,"%-13s",l->scope_name);
+
+
+"Variable Name  Tipo  Escopo  Line Numbers\n"
+"-------------  ----  ------  ------------\n"
+
+fprintf(listing,"%-15s",l->name);
+fprintf(listing,"%-6s",l->type);
+fprintf(listing,"%-8s",l->scope);
+fprintf(listing,"%4d",l->lineno);
+
+    if (scope == NULL) {
+      if (idtype == Ativation) typeError(lineno,"Erro 5: chamada de função não declarada");
+      typeError(lineno,"Erro 1: variável não declarada");
+    }

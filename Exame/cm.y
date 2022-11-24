@@ -53,38 +53,40 @@ decl        : var_decl { $$ = $1; }
 var_decl    : INT id SEMI
               {
                 $$ = newStmtNode(IntK);
-                $$->child[0] = newExpNode(IdK, Variable);
+                $$->child[0] = newDeclExpNode(IdK, VarT, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
               }
             | VOID id SEMI
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(IdK, Variable);
+                $$->child[0] = newDeclExpNode(IdK, VarT, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
               }
             | INT id OB NUM {savedNum = atoi(tokenString);} CB SEMI
               {
                 $$ = newStmtNode(IntK);
-                $$->child[0] = newExpNode(IdK, Variable);
+                $$->child[0] = newDeclExpNode(IdK, VarT, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
 
-                $$->child[0]->child[0] = newExpNode(NumK, -1);
+                $$->child[0]->child[0] = newDeclExpNode(NumK, VarT, -1);
                 $$->child[0]->child[0]->attr.val = savedNum;
+                $$->child[0]->child[0]->type = Integer;
               }
             | VOID id OB NUM {savedNum = atoi(tokenString);} CB SEMI
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(IdK, Variable);
+                $$->child[0] = newDeclExpNode(IdK, VarT, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
 
-                $$->child[0]->child[0] = newExpNode(NumK, -1);
+                $$->child[0]->child[0] = newDeclExpNode(NumK, VarT, -1);
                 $$->child[0]->child[0]->attr.val = savedNum;
+                $$->child[0]->child[0]->type = Integer;
               }
             ;
 fun_decl    : INT id OP params CP comp_decl
               {
                 $$ = newStmtNode(IntK);
-                $$->child[0] = newExpNode(IdK, Function);
+                $$->child[0] = newDeclExpNode(IdK, FuncT, Function);
                 $$->child[0]->attr.name = $2->attr.name;
                 
                 $$->child[0]->child[0] = $4;
@@ -93,7 +95,7 @@ fun_decl    : INT id OP params CP comp_decl
             | VOID id OP params CP comp_decl
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(IdK, Function);
+                $$->child[0] = newDeclExpNode(IdK, FuncT, Function);
                 $$->child[0]->attr.name = $2->attr.name;
                 
                 $$->child[0]->child[0] = $4;
@@ -120,30 +122,32 @@ param_lista : param_lista COMMA param
 param       : INT id
               {
                 $$ = newStmtNode(IntK);
-                $$->child[0] = newExpNode(IdK, Variable);
+                $$->child[0] = newDeclExpNode(IdK, VarT, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
               }
             | VOID id
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(IdK, Variable);
+                $$->child[0] = newDeclExpNode(IdK, VarT, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
               }
             | INT id OB CB
               {
                 $$ = newStmtNode(IntK);
-                $$->child[0] = newExpNode(IdK, Variable);
+                $$->child[0] = newDeclExpNode(IdK, VarT, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
 
                 $$->child[0]->child[0] = newExpNode(NumK, -1);
+                $$->child[0]->child[0]->type = Integer;
               }
             | VOID id OB CB
               {
                 $$ = newStmtNode(VoidK);
-                $$->child[0] = newExpNode(IdK, Variable);
+                $$->child[0] = newDeclExpNode(IdK, VarT, Variable);
                 $$->child[0]->attr.name = $2->attr.name;
 
                 $$->child[0]->child[0] = newExpNode(NumK, -1);
+                $$->child[0]->child[0]->type = Integer;
               }
             ;
 comp_decl   : OBRACES loc_decl stmt_list CBRACES
@@ -324,6 +328,7 @@ fator       : OP exp CP { $$ = $2; }
             | var { $$ = $1; }
             | ativ { $$ = $1; }
             | NUM { $$ = newExpNode(NumK, -1);
+                    $$->type = Integer;
                     $$->attr.val = atoi(tokenString); }
             ;
 ativ        : id OP args CP

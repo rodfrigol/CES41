@@ -68,6 +68,7 @@ typedef enum {OpK,NumK,IdK} ExpKind;
 
 /* ExpType is used for type checking */
 typedef enum {Void,Integer,Boolean} ExpType;
+typedef enum {VarT, FuncT} DeclType;
 typedef enum {Variable, Function, Ativation} IdType;
 
 #define MAXCHILDREN 3
@@ -75,6 +76,7 @@ typedef enum {Variable, Function, Ativation} IdType;
 typedef struct treeNode
    { struct treeNode * child[MAXCHILDREN];
      struct treeNode * sibling;
+     char * scope;
      int lineno;
      NodeKind nodekind;
      union { StmtKind stmt; ExpKind exp;} kind;
@@ -82,6 +84,7 @@ typedef struct treeNode
              int val;
              char * name; } attr;
      ExpType type; /* for type checking of exps */
+     DeclType decltype; /* for type checking of declarations */
      IdType idtype; /* for type checking of ids */
    } TreeNode;
 

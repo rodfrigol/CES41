@@ -41,6 +41,11 @@ static void nullProc(TreeNode * t)
   else return;
 }
 
+static void typeError(TreeNode * t, char * message)
+{ fprintf(listing,"Type error at line %d: %s\n",t->lineno,message);
+  Error = TRUE;
+}
+
 /* Procedure insertNode inserts 
  * identifiers stored in t into 
  * the symbol table 
@@ -49,15 +54,17 @@ static void insertNode( TreeNode * t)
 { switch (t->nodekind)
   { case StmtK:
       switch (t->kind.stmt)
-      { case AssignK:
-        case ReadK:
-          if (st_lookup(t->attr.name) == -1)
-          /* not yet in table, so treat as new definition */
-            st_insert(t->attr.name,t->lineno,location++);
-          else
-          /* already in table, so ignore location, 
-             add line number of use only */ 
-            st_insert(t->attr.name,t->lineno,0);
+      { case IfK:
+          break;
+        case IntK:
+          t->child[0]->type = Integer;
+          break;
+        case ReturnK:
+          break;
+        case VoidK:
+          t->child[0]->type = Void;
+          break;
+        case WhileK:
           break;
         default:
           break;
@@ -66,13 +73,16 @@ static void insertNode( TreeNode * t)
     case ExpK:
       switch (t->kind.exp)
       { case IdK:
+          if (t->idtype == Ativation && strcmp(t->attr.name, "input") == 0) {
+            t->type = Integer;
+          }
           if (st_lookup(t->attr.name) == -1)
           /* not yet in table, so treat as new definition */
-            st_insert(t->attr.name,t->lineno,location++);
+            st_insert(t->attr.name,t->lineno,location++,t->scope, t->type, t->decltype, t->idtype);
           else
           /* already in table, so ignore location, 
              add line number of use only */ 
-            st_insert(t->attr.name,t->lineno,0);
+            st_insert(t->attr.name,t->lineno,0,t->scope, t->type, t->decltype, t->idtype);
           break;
         default:
           break;
@@ -94,11 +104,6 @@ void buildSymtab(TreeNode * syntaxTree)
   }
 }
 
-static void typeError(TreeNode * t, char * message)
-{ fprintf(listing,"Type error at line %d: %s\n",t->lineno,message);
-  Error = TRUE;
-}
-
 /* Procedure checkNode performs
  * type checking at a single tree node
  */
@@ -107,17 +112,11 @@ static void checkNode(TreeNode * t)
   { case ExpK:
       switch (t->kind.exp)
       { case OpK:
-          if ((t->child[0]->type != Integer) ||
-              (t->child[1]->type != Integer))
-            typeError(t,"Op applied to non-integer");
-          if ((t->attr.op == EQ) || (t->attr.op == LT))
-            t->type = Boolean;
-          else
-            t->type = Integer;
+          if (t->attr.op == ASSIGN && t->child[0]->type == Integer && t->child[1]->type == Void)
+            typeError(t,"Erro 2: atribuição inválida");
           break;
-        case ConstK:
+        case NumK:
         case IdK:
-          t->type = Integer;
           break;
         default:
           break;
@@ -126,20 +125,10 @@ static void checkNode(TreeNode * t)
     case StmtK:
       switch (t->kind.stmt)
       { case IfK:
-          if (t->child[0]->type == Integer)
-            typeError(t->child[0],"if test is not Boolean");
-          break;
-        case AssignK:
-          if (t->child[0]->type != Integer)
-            typeError(t->child[0],"assignment of non-integer value");
-          break;
-        case WriteK:
-          if (t->child[0]->type != Integer)
-            typeError(t->child[0],"write of non-integer value");
-          break;
-        case RepeatK:
-          if (t->child[1]->type == Integer)
-            typeError(t->child[1],"repeat test is not Boolean");
+        case IntK:
+        case ReturnK:
+        case VoidK:
+        case WhileK:
           break;
         default:
           break;
