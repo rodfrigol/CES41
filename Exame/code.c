@@ -68,6 +68,8 @@ char * buildOpCode(TreeNode * p, int isLeftReceive) {
             r = copyString("r");
             strcat(r, itoa(registerNo++));
           }
+          free(aux0);
+          free(aux1);
         }
       } else if (p->idtype == Ativation) {
         q = p->child[0];
@@ -78,6 +80,7 @@ char * buildOpCode(TreeNode * p, int isLeftReceive) {
           printTabs();
           fprintf(code, "param %s\n", aux0);
           q = q->sibling;
+          free(aux0);
         }
         r = copyString("r");
         strcat(r, itoa(registerNo++));
@@ -99,6 +102,8 @@ char * buildOpCode(TreeNode * p, int isLeftReceive) {
         fprintf(code, "%s = %s\n", aux0, aux1);
         r = copyString(aux0);
       }
+      free(aux0);
+      free(aux1);
       break;
     default:
       break;
