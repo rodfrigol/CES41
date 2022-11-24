@@ -76,7 +76,8 @@ void st_insert( char * name, int lineno, int loc, char * scope, ExpType type, De
   if (l == NULL) /* variable not yet in table */
   { 
     if (decltype == -1 && idtype == Variable) typeError(lineno,"Erro 1: variável não declarada");
-    else if (decltype == -1 && idtype == Function) typeError(lineno,"Erro 5: chamada de função não declarada");
+    else if (decltype == -1 && idtype == Ativation && strcmp(name, "input") != 0 && strcmp(name, "output") != 0)
+      typeError(lineno,"Erro 5: chamada de função não declarada");
     else if (type == Void && idtype == Variable) typeError(lineno,"Erro 3: declaração inválida de variável");
     if (strcmp(name,"output") == 0 || strcmp(name, "input") == 0) {
       decltype = FuncT;
@@ -127,7 +128,7 @@ int st_lookup ( char * name )
  */
 void printSymTab(FILE * listing)
 { 
-  if (st_lookup("main") == -1) typeError(lineno,"Erro 6: função main não declarada");
+  if (st_lookup("main") == -1) typeError(lineno,"Erro 6: função main não declarada\n");
   int i;
   fprintf(listing,"Variable Name  Tipo  Escopo  Line Numbers\n");
   fprintf(listing,"-------------  ----  ------  ------------\n");

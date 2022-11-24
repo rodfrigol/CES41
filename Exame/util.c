@@ -193,7 +193,7 @@ void printTree( TreeNode * tree )
     else if (tree->nodekind==ExpK)
     { switch (tree->kind.exp) {
         case OpK:
-          fprintf(listing,"Op: ");
+          fprintf(listing,"Op: %d", tree->kind.exp);
           printToken(tree->attr.op,"\0");
           break;
         case NumK:
@@ -212,7 +212,7 @@ void printTree( TreeNode * tree )
               tree->scope = currentScope;
               break;
           }
-          fprintf(listing,"Id: %s %d\n",tree->attr.name);
+          fprintf(listing,"Id: %s\n",tree->attr.name);
           break;
         default:
           fprintf(listing,"Unknown ExpNode kind\n");
